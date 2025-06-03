@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora</title>
+</head>
+
+<!-- Estilo da calculadora -->
+<style>
+/* Estrutura externa da calculadora */
+.tela {
+  position: absolute;
+  height: 80%;
+  width: 30%;
+  top: 10%;
+  left: 35%;
+  background-color: black; 
+  border-radius: 10px; 
+}
+
+/* Parte interna da calculadora (borda interna) */
+.borda {
+    background-color: darkslategray;
+    height: 92%;
+    width: 90%;
+    position: absolute;
+    top: 4%;
+    left: 5%;
+    border-radius: 3px;
+    box-shadow: 0px 0px 1cap;  /* valor "1cap" não é padrão */
+    color: darkslategrey;
+}
+
+/* Tela onde o resultado aparece */
+.telinha {
+    position: absolute;
+    height: 15%;
+    width: 85%;
+    background-color: greenyellow;
+    border: solid 5px;
+    color: black;
+    border-radius: 10px;
+    top: 5%;
+    left: 5%;
+}
+
+/* Estilo do texto da tela principal */
+#text_tela {
+    text-align: end;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: xx-large;
+    font-weight: bold;
+}
+
+/* Área dos botões */
+.botoes {
+    position: absolute;
+    top: 40%;
+    left: 6%;
+    height: 50%;
+    width: 90%;
+}
+
+/* Estilo dos botões */
+button {
+    width: 23%;
+    font-size: 200%;
+    text-align: center;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    border-radius: 5px;
+    background-color: antiquewhite;
+    color: black;
+}
+
+/* Estilo da tela menor (onde aparecem as operações anteriores) */
+#telamini {
+    position: absolute;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+/* Estilo do botão "Modo Teclado" */
+.modonovo {
+    position: absolute;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    background-color: darkred;
+    color: white;
+    border-radius: 10px;
+    font-size: 90%;
+    left: 60%;
+    width: 35%;
+    cursor: pointer;
+    height: 5%;
+    top: 30%;
+}
+
+/* Fundo da página */
+body {
+    background-image: url("fundo.gif");  /* imagem de fundo */
+    background-attachment: fixed;
+    background-position: 0px;
+    background-repeat: no-repeat;
+}
+</style>
+
+<!-- Script JavaScript para controlar a lógica da calculadora -->
+<script>
+// Variáveis de controle
+var numero = 0;
+var contar = 0; // contador de dígitos
+var disp = []; // array que armazena os valores e operações
+var calculo = []; // array temporário para formar números digitados
+var poste2 = 0; // índice para o array 'disp'
+
+// Função para receber números clicados e exibir na tela
+function enviar(numero){ 
+    document.getElementById("text_tela").innerHTML += numero + "";
+    calculo[contar] = [numero]; // armazena individualmente
+    contar += 1;
+}
+
+// Limpa a tela e variáveis
+function deletar() {
+    calculo = [];
+    disp = [];
+    contar = 0;
+    poste2 = 0;
+    document.getElementById("text_tela").innerHTML = "";
+    document.getElementById("telamini").innerHTML = "";
+}
+
+// Mostra o resultado ou adiciona operação
+function mostrar(resultado) {
+    var numeroC = 0; // número construído a partir dos dígitos
+    var j = 0;
+    var poste = 0;
+
+    // Constrói número a partir dos dígitos inseridos
+    while (poste < 3) {
+        if (j == contar - 1) {
+            poste = 10;
+            numeroC += calculo[j] * 1;
+            document.getElementById("text_tela").innerHTML = "";
+        } else if (contar - 1 == -1) {
+            poste = 10;
+        } else {
+            numeroC += calculo[j] * (10 ** (contar - (j + 1)));
+            j++;
+        }
+    }
+
+    // Adiciona o número e o operador à lista
+    disp[poste2] = numeroC;
+    disp[poste2 + 1] = resultado;
+    poste2 += 2;
+
+    // Se resultado for "ent" (enter), realiza o cálculo final
+    if (resultado == "ent") {
+        var poste3 = 0;
+        var poste4 = 1;
+        var resultadofn = 0;
+
+        while (poste3 < 10) {
+            if (poste4 == poste2 - 1) {
+                poste3 = 20;
+                document.getElementById("telamini").innerHTML = "";
+                document.getElementById("text_tela").innerHTML = resultadofn;
+                disp = [];
+                poste2 = 0;
+            } else {
+                // Operações básicas
+                if (disp[poste4] == "+") {
+                    resultadofn = disp[poste4 - 1] + disp[poste4 + 1];
+                    disp[poste4 + 1] = resultadofn;
+                } else if (disp[poste4] == "-") {
+                    resultadofn += disp[poste4 - 1] - disp[poste4 + 1];
+                    disp[poste4 + 1] = resultadofn;
+                } else if (disp[poste4] == "/") {
+                    resultadofn = disp[poste4 - 1] / disp[poste4 + 1];
+                    disp[poste4 + 1] = resultadofn;
+                } else if (disp[poste4] == "*") {
+                    resultadofn = disp[poste4 - 1] * disp[poste4 + 1];
+                    disp[poste4 + 1] = resultadofn;
+                }
+                poste4++;
+            }
+        }
+    } else {
+        // Mostra operação parcial
+        document.getElementById("telamini").innerHTML = resultado + " " + numeroC;
+        calculo = [];
+        contar = 0;
+    }
+}
+
+// Função de modo alternativo: usuário digita a equação completa
+function novomod() {
+    var texto = window.prompt("Escreva a equação por completo: ");
+    var resul = eval(texto); // avalia expressão digitada
+    document.getElementById("text_tela").innerHTML = resul;
+}
+</script>
+
+<!-- Estrutura da calculadora -->
+<body>
+    <div class="tela">
+        <div class="borda">
+            <!-- Botão para alternar para modo texto -->
+            <button class="modonovo" onclick="novomod()">MODO TECLADO</button>
+
+            <!-- Tela principal e tela menor -->
+            <div class="telinha">
+                <label id="telamini"></label>
+                <p id="text_tela"></p>
+            </div>
+
+            <!-- Botões da calculadora -->
+            <div class="botoes">
+                <button onclick="enviar(1)">1</button>
+                <button onclick="enviar(2)">2</button>
+                <button onclick="enviar(3)">3</button>
+                <button onclick="mostrar('+')">+</button>
+                <br><br>
+                <button onclick="enviar(4)">4</button>
+                <button onclick="enviar(5)">5</button>
+                <button onclick="enviar(6)">6</button>
+                <button onclick="mostrar('-')">-</button>
+                <br><br>
+                <button onclick="enviar(7)">7</button>
+                <button onclick="enviar(8)">8</button>
+                <button onclick="enviar(9)">9</button>
+                <button onclick="mostrar('/')">/</button>
+                <br><br>
+                <button onclick="enviar(0)">0</button>
+                <button onclick="mostrar('ent')">ENT</button>
+                <button onclick="deletar()">DEL</button>
+                <button onclick="mostrar('*')">*</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
